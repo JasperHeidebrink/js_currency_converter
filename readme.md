@@ -1,16 +1,10 @@
-## List category posts
+# JS Currency Converter
 - Plugin Name:	DG Currency converter
-- Plugin URI:		http://wordpress.org/#
 - Description: 	This plugin converts a currency using front-end JavaScript
 - Author: 		Dragonet
 - Version: 		1.0
 - Author URI: 	http://www.dragonet.nl/
 
-## Description
-## Installation
-## Other notes
-
-# JS Currency Converter
 This plugin converts a currency using front-end JavaScript.
 
 This currency converter uses javascript in combination with the Google API
