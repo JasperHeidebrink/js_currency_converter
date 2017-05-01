@@ -1,55 +1,22 @@
-var fx;
+var fx, current_currency;
 
 jQuery( document ).ready( function ( $ ) {
 
-	fx.base  = 'EUR';
-	fx.rates = {
-		'EUR' : 0.745101, // eg. 1 USD === 0.745101 EUR
-		'GBP' : 0.647710, // etc...
-		'USD' : 1
-	};
-
+	fx.base  = js_currency_converter.from;
+	fx.rates = js_currency_converter.exchange_rates;
 
 	/*
 	 * Default storing the of a like
 	 */
 	$( '.js_currency_converter_select' ).change( function ( event ) {
 
+		current_currency = $( '.js_currency_converter_select' ).val();
+		setCookie( 'current_currency', current_currency );
+
 		event.preventDefault();
 
-		update_currency();
+		update_currency( current_currency );
 	} );
-
-	/**
-	 * Loading the gallery like counters
-	 *
-	 * @param item_url
-	 * @param target
-	 */
-	init_like_counter = function ( item_url, target ) {
-
-		$.ajax( {
-			type     : 'POST',
-			url      : JsCurrencyConverter.ajaxUrl,
-			dataType : 'json',
-			data     : {
-				action   : 'dg_get_like_counter',
-				nonce    : JsCurrencyConverter.ajaxNonce,
-				item_url : item_url,
-				target   : encodeURIComponent( target )
-			},
-			success  : function ( result ) {
-				if ( undefined === result.data.html ) {
-					return;
-				}
-
-				/*
-				 * Update the counter
-				 */
-				$( result.data.html ).insertAfter( decodeURIComponent( result.data.target ) );
-			}
-		} );
-	};
 
 	/**
 	 * Update the currency based on the selection
@@ -59,18 +26,21 @@ jQuery( document ).ready( function ( $ ) {
 
 		var currency = $( '.js_currency_converter_select' ).val();
 
-		$( '.' + JsCurrencyConverter.target ).each( function () {
+		$( '.' + js_currency_converter.target ).each( function () {
+
+			/*
+			 * Make sure the original value is stored
+			 */
+			var org_value = $( this ).attr( 'data-org_value' );
+			if ( typeof org_value === typeof undefined || org_value === false ) {
+				$( this ).attr( 'data-org_value', accounting.unformat( $( this ).text() ) );
+			}
+
 			/*
 			 * Get the value and transform it to the new values
 			 */
-			// var value     = parseInt( $( this ).text().split( '-' ).join( '00' ) ),
-			//     new_value = fx.convert( value, { from : 'EUR', to : currency } );
-			// $( this ).html( new_value );
-
-
-			var value          = accounting.unformat( $( this ).text() );
-			var convertedValue = fx( value ).from( 'EUR' ).to( currency );
-
+			var value          = accounting.unformat( $( this ).attr( 'data-org_value' ) ),
+			    convertedValue = fx( value ).from( js_currency_converter.from ).to( currency );
 
 			$( this ).html(
 				accounting.formatMoney( convertedValue, {
@@ -78,40 +48,50 @@ jQuery( document ).ready( function ( $ ) {
 					format : "%v %s"
 				} )
 			);
-
-
-			console.log( 'value: ' + value + ' convertedValue: ' + convertedValue + ' to currency: ' + currency );
 		} );
 	};
 
+	/**
+	 * Store a cookie
+	 *
+	 * @param cname
+	 * @param cvalue
+	 */
+	setCookie = function ( cname, cvalue ) {
+		var d      = new Date(),
+		    exdays = 31;
+		d.setTime( d.getTime() + (exdays * 24 * 60 * 60 * 1000) );
+		var expires     = 'expires=' + d.toUTCString();
+		document.cookie = cname + '=' + cvalue + ';' + expires + 'path=/';
+	};
 
-
-
-    // Load exchange rates data via AJAX:
-    $.getJSON(
-    	// NB: using Open Exchange Rates here, but you can use any source!
-        'https://openexchangerates.org/api/latest.json?app_id=[YOUR APP ID]',
-        function(data) {
-            // Check money.js has finished loading:
-            if ( typeof fx !== "undefined" && fx.rates ) {
-                fx.rates = data.rates;
-                fx.base = data.base;
-            } else {
-                // If not, apply to fxSetup global:
-                var fxSetup = {
-                    rates : data.rates,
-                    base : data.base
-                }
-            }
-        }
-    );
-
-    
+	/**
+	 * Get the cookie value
+	 * @param cname
+	 * @returns {*}
+	 */
+	getCookie = function ( cname ) {
+		var name = cname + '=';
+		var ca   = document.cookie.split( ';' );
+		for ( var i = 0; i < ca.length; i ++ ) {
+			var c = ca[i];
+			while ( c.charAt( 0 ) == ' ' ) {
+				c = c.substring( 1 );
+			}
+			if ( c.indexOf( name ) == 0 ) {
+				return c.substring( name.length, c.length );
+			}
+		}
+		return '';
+	};
 
 	/*
 	 * Set the stored currency, from the php coockie
 	 */
-	// $( '.' + JsCurrencyConverter.target )
+	current_currency = getCookie( 'current_currency' );
 
-	update_currency();
+	if ( undefined !== current_currency ) {
+		$( '.js_currency_converter_select' ).val( current_currency );
+		update_currency();
+	}
 } );

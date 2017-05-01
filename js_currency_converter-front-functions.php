@@ -20,10 +20,33 @@ class JsCurrencyConverter {
 	 */
 	protected $_slug = 'js_currency_converter';
 
+	/**
+	 * @var string
+	 */
+	protected $_default_currency = 'USD';
+
+	/**
+	 * Initial actions
+	 */
 	public function setActions() {
+
+		add_action( 'plugins_loaded', [ $this, 'init_textdomain' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'action__enqueue_scripts' ] );
 
 		add_filter( 'add_currency_converter_dropdown', [ $this, 'filter__add_currency_converter_dropdown' ] );
+		add_filter( 'retrieve_exchange_rates', [ $this, 'filter__retrieve_exchange_rates' ] );
+
+		if ( get_option( 'jcc_exchange_rates_from' ) ) {
+			$this->_default_currency = esc_attr( get_option( 'jcc_exchange_rates_from' ) );
+		}
+	}
+
+	/**
+	 * Init the translations
+	 */
+	public function init_textdomain() {
+		$plugin_dir = basename( dirname( __FILE__ ) );
+		load_plugin_textdomain( $this->_slug );
 	}
 
 	/**
@@ -50,17 +73,17 @@ class JsCurrencyConverter {
 		                    true );
 
 		$i18n = array(
-			'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
-			'ajaxNonce' => wp_create_nonce( 'JsCurrencyConverter' ),
-			'target'    => esc_html( get_option( 'jcc_target_class' ) ),
+			'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
+			'ajaxNonce'      => wp_create_nonce( $this->_slug ),
+			'from'           => esc_attr( get_option( 'jcc_exchange_rates_from' ) ),
+			'target'         => esc_html( get_option( 'jcc_target_class' ) ),
+			'exchange_rates' => $this->get_exchange_rates_json(),
 		);
-		wp_localize_script( 'JsCurrencyConverter', 'JsCurrencyConverter', $i18n );
+		wp_localize_script( 'JsCurrencyConverter', $this->_slug, $i18n );
 		wp_enqueue_script( 'JsCurrencyConverter' );
-
 
 		wp_register_style( 'JsCurrencyConverter-styles', plugin_dir_url( __FILE__ ) . 'assets/css/js_currency_converter.css' );
 		wp_enqueue_style( 'JsCurrencyConverter-styles' );
-
 	}
 
 	/**
@@ -69,15 +92,41 @@ class JsCurrencyConverter {
 	 * @return string
 	 */
 	public function filter__add_currency_converter_dropdown() {
+		$currencies_list = preg_split( "/[\r\n]/", get_option( 'jcc_currency' ), - 1, PREG_SPLIT_NO_EMPTY );
 
 		$html = '<div class="js_currency_converter">' .
-		        '<select class="js_currency_converter_select" name="js_currency_converter">' .
-		        '	<option value="EUR">Euro</option>' .
-		        '	<option value="USD">USD</option>' .
-		        '	<option value="GBP">GBP</option>' .
-		        '</select> ' .
-		        '</div>';
+		        '<select class="js_currency_converter_select" name="js_currency_converter">';
+		foreach ( $currencies_list as $currency ) {
+			$html .= '  <option name="' . $currency . '"';
+			if ( $this->_default_currency == $currency ) {
+				$html .= ' selected="selected"';
+			};
+			$html .= '>' . $currency . '</option>';
+		}
+		$html .= '</select></div>';
 
 		echo $html;
+	}
+
+	/**
+	 * Retrieve the live exchange rates
+	 *
+	 * @return string
+	 */
+	public function get_exchange_rates_json() {
+
+		$from           = esc_attr( get_option( 'jcc_exchange_rates_from' ) );
+		$exchange_rates = [];
+		$currency_list  = preg_split( "/[\r\n]/", get_option( 'jcc_exchange_rates' ) );
+		foreach ( $currency_list as $currency ) {
+			if ( false === strpos( $currency, ':' ) ) {
+				continue;
+			}
+			$rate                     = explode( ':', $currency );
+			$title                    = preg_replace( '/^' . $from . '/', '', $rate[0] );
+			$exchange_rates[ $title ] = $rate[1];
+		}
+
+		return $exchange_rates;
 	}
 }
