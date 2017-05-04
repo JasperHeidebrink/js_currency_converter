@@ -18,7 +18,17 @@ class JsCurrencyConverterAdmin {
 	/**
 	 * @var string
 	 */
+	protected $_version = '1.1';
+
+	/**
+	 * @var string
+	 */
 	protected $_slug = 'js_currency_converter';
+
+	/**
+	 * @var string
+	 */
+	protected $_flags_dir = 'assets/flags/24';
 
 	/**
 	 * @var array
@@ -56,19 +66,48 @@ class JsCurrencyConverterAdmin {
 	 *
 	 * @param $hook
 	 */
-	public function action__jcc_admin_scripts( $hook ) {
+	public function action__jcc_admin_scripts() {
+
+		/*
+		 * Load JavaScript
+		 */
+		wp_register_script( 'JsCurrencyConverterSelect2',
+		                    'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js',
+		                    [ 'jquery' ],
+		                    '4.0.3',
+		                    true );
+
 		wp_register_script( 'JsCurrencyConverterAdmin',
 		                    plugin_dir_url( __FILE__ ) . 'assets/js/js_currency_converter_admin.js',
 		                    [ 'jquery' ],
-		                    '1.0' );
+		                    $this->_version );
 		$i18n = array(
 			'ajaxUrl'            => admin_url( 'admin-ajax.php' ),
 			'ajaxNonce'          => wp_create_nonce( $this->_slug ),
 			'target'             => esc_html( get_option( 'jcc_target_class' ) ),
 			'exchange_rates_api' => esc_html( get_option( 'jcc_exchange_rates_api' ) ),
 		);
+
 		wp_localize_script( 'JsCurrencyConverterAdmin', $this->_slug, $i18n );
 		wp_enqueue_script( 'JsCurrencyConverterAdmin' );
+		wp_enqueue_script( 'JsCurrencyConverterSelect2' );
+
+		/*
+		 * Sload CSS
+		 */
+		wp_register_style( 'JsCurrencyConverterCss',
+		                   plugin_dir_url( __FILE__ ) . 'assets/css/js_currency_converter.css',
+		                   null,
+		                   $this->_version,
+		                   'all' );
+
+		wp_register_style( 'JsCurrencyConverterSelect2Css',
+		                   'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css',
+		                   null,
+		                   $this->_version,
+		                   'all' );
+		wp_enqueue_style( 'JsCurrencyConverterCss' );
+		wp_enqueue_style( 'JsCurrencyConverterSelect2Css' );
 	}
 
 	/**
@@ -98,7 +137,7 @@ class JsCurrencyConverterAdmin {
 		register_setting( $this->_slug . '_settings', 'jcc_currency' );
 		register_setting( $this->_slug . '_settings', 'jcc_exchange_rates' );
 		register_setting( $this->_slug . '_settings', 'jcc_exchange_rates_from' );
-		register_setting( $this->_slug . '_settings', 'jcc_exchange_rates_api_key' );
+		register_setting( $this->_slug . '_settings', 'jcc_exchange_rates_api' );
 	}
 
 	/**
@@ -106,7 +145,7 @@ class JsCurrencyConverterAdmin {
 	 */
 	public function jcc_options_page() {
 
-		$url = 'http://apilayer.net/api/live?access_key=' . esc_attr( get_option( 'jcc_exchange_rates_api_key' ) );
+		$url = esc_attr( get_option( 'jcc_exchange_rates_api' ) );
 
 		echo '<div class="wrap">';
 		echo '	<h2>' . __( 'JS Currency Converter settings', $this->_slug ) . '</h2>';
@@ -129,13 +168,14 @@ class JsCurrencyConverterAdmin {
 			echo '>' . $currency . '</option>';
 		}
 		echo '	</select><em> ';
-		echo sprintf( __( 'Special subscription needed at <a href="%s" target="currency_list">%s</a>', $this->_slug ), 'https://currencylayer.com/', 'https://currencylayer.com/');
+		echo sprintf( __( 'Special subscription needed at <a href="%s" target="currency_list">%s</a>', $this->_slug ), 'https://currencylayer.com/', 'https://currencylayer.com/' );
 		echo '		</em></td>';
 		echo '	</tr>';
 
 		echo '	<tr valign="top">';
-		echo '		<th scope="row">' . __( 'API-KEY for <a href="http://apilayer.net" target="api_layer">http://apilayer.net</a>', $this->_slug ) . '</th>';
-		echo '		<td><input type="text" name="jcc_exchange_rates_api_key" value="' . esc_attr( get_option( 'jcc_exchange_rates_api_key' ) ) . '" style="width:65%;" /></td>';
+		echo '		<th scope="row">' . __( 'Complete API url, inclusive the API-KEY', $this->_slug ) . '</th>';
+		echo '		<td><input type="text" name="jcc_exchange_rates_api" value="' . esc_attr( get_option( 'jcc_exchange_rates_api' ) ) . '" style="width:65%;" />';
+		echo '		<br><em>' . __( 'Example free exchange rate API is: <a href="http://apilayer.net" target="api_layer">http://apilayer.net</a>', $this->_slug ) . '</em></td>';
 		echo '	</tr>';
 
 		echo '	<tr valign="top">';
@@ -144,21 +184,22 @@ class JsCurrencyConverterAdmin {
 		echo '	</tr>';
 
 		echo '	<tr valign="top">';
-		echo '		<th scope="row">' . __( 'Currencies', $this->_slug ) . '</th>';
-		echo '		<td>';
-		echo '		<textarea name="jcc_currency" style="float:left;width:25%;min-height:150px;">' . esc_html( get_option( 'jcc_currency' ) ) . '</textarea>';
-		echo '<br/><em>';
-		echo __( 'Every currency should be on a new line', $this->_slug ) . '<br>';
-		echo sprintf( __( 'Currency list can be found here <a href="%s" target="currency_list">%s</a>', $this->_slug ), $url, $url );
-		echo '		</em></td>';
-		echo '	</tr>';
-
-		echo '	<tr valign="top">';
 		echo '		<th scope="row">' . __( 'Exchange rates', $this->_slug ) . '</th>';
 		echo '		<td>';
 		echo '		<textarea name="jcc_exchange_rates" style="float:left;width:25%;min-height:250px;">' . esc_html( get_option( 'jcc_exchange_rates' ) ) . '</textarea>';
 		echo '      <div class="currency_holder" style="float:left;width:25%;min-height:250px;border:solid 1px;margin:0 15px;">Example:<br>' . $this->retrieve_exchange_rates() . '</div></td>';
 		echo '	</tr>';
+
+		echo '	<tr valign="top">';
+		echo '		<th scope="row">' . __( 'Currencies', $this->_slug ) . '</th>';
+		echo '		<td>';
+		$this->create_currency_list();
+		echo '<br/><em>';
+		echo __( 'Every currency should be on a new line', $this->_slug ) . '<br>';
+		echo __( 'A available currency list can be retrieved from your API provider', $this->_slug );
+		echo '		</em></td>';
+		echo '	</tr>';
+
 
 		echo '	</table>';
 		echo '</div>';
@@ -174,32 +215,22 @@ class JsCurrencyConverterAdmin {
 	 * @return string
 	 */
 	private function retrieve_exchange_rates() {
-
-		$access_key = esc_attr( get_option( 'jcc_exchange_rates_api_key' ) );
+		$api_url    = esc_attr( get_option( 'jcc_exchange_rates_api' ) );
 		$from       = esc_attr( get_option( 'jcc_exchange_rates_from' ) );
-		$currencies = preg_replace( "/[\r\n]/", ',', get_option( 'jcc_currency' ) );
-		$currencies = str_replace( ',,', ',', $currencies );
-		$url        = 'http://apilayer.net/api/live?access_key=' . $access_key . '&from=' . $from . '&currencies=' . $currencies;
+		$currencies = $this->get_currency_names( get_option( 'jcc_currency' ) );
+		$currencies = join( ',', $currencies );
+		$url        = $api_url . '&from=' . $from . '&currencies=' . $currencies;
 
-		/*
-		 * Initialize CURL:
-		 */
-		$ch = curl_init( $url );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
 
-		/*
-		 * Store the data:
-		*/
-		$json = curl_exec( $ch );
-		curl_close( $ch );
-
+		$response = wp_remote_get( $url );
+		$body     = wp_remote_retrieve_body( $response );
 		/*
 		 * Decode JSON response:
 		 */
-		$exchangeRates = json_decode( $json, true );
+		$exchangeRates = json_decode( $body, true );
 
 		if ( ! isset( $exchangeRates['quotes'] ) ) {
-			return __( 'API(key) is not valid', $this->_slug );
+			return sprintf( __( 'API(key) is not valid : %s', $this->_slug ), $url );
 		}
 
 		$output = '';
@@ -208,5 +239,140 @@ class JsCurrencyConverterAdmin {
 		}
 
 		return nl2br( $output );
+	}
+
+	/**
+	 * Generate text field
+	 *
+	 * @param  Array
+	 *
+	 * @return String
+	 */
+	public function create_currency_list() {
+		$base_name  = 'jcc_currency';
+		$currencies = get_option( 'jcc_currency' );
+
+		echo '<div class="currency_rows">';
+		$i = $this->get_currency_list( $base_name, $currencies );
+		echo '</div>';
+		echo '<div class="new_row currency_row" style="display:none;" data-basename="' . $base_name . '">';
+		echo $this->get_flag_list( $base_name . '[' . $i . '][flag]', '', true );
+		echo '  <input placeholder="Title" class="jcc_currency_admin_title" type="text" name="' . $base_name . '[' . $i . '][ title ]" />';
+		echo '</div>';
+		echo '<button class="button new_row_button">' . __( 'New Currency', $this->_slug ) . '</button>';
+	}
+
+	/**
+	 * Get a list with the currency names
+	 *
+	 * @param $currencies
+	 *
+	 * @return array|string
+	 */
+	private function get_currency_names( $currencies ) {
+		if ( ! is_array( $currencies ) || empty( $currencies ) ) {
+			return '';
+		}
+		$currencies_names = [];
+		/*
+		 * Walk trough all the stored currencies
+		 */
+		foreach ( $currencies as $currency ) {
+			if ( ! isset( $currency['title'] ) || empty( $currency['title'] ) ) {
+				continue;
+			}
+			$currencies_names[] = $currency['title'];
+		}
+
+		return $currencies_names;
+	}
+
+	/**
+	 * Create a list with all the currencies
+	 *
+	 * @param $base_name
+	 * @param $currencies
+	 *
+	 * @return int
+	 */
+	private function get_currency_list( $base_name, $currencies ) {
+		if ( ! is_array( $currencies ) || empty( $currencies ) ) {
+			return 0;
+		}
+		$i = 0;
+
+		/*
+		 * Walk trough all the stored currencies
+		 */
+		foreach ( $currencies as $currency ) {
+			if ( ! isset( $currency['title'] ) || empty( $currency['title'] ) ) {
+				continue;
+			}
+			echo '<div class="currency_row line" data-basename="' . $base_name . '">';
+			echo $this->get_flag_list( $base_name . '[' . $i . '][flag]', $currency['flag'] );
+			echo '	<input placeholder="Title" class="jcc_currency_admin_title" type="text" name="' . $base_name . '[' . $i . '][title]" value="' . $currency['title'] . '" />';
+			echo '	<button class="button fa-warning remove_this_row">' . __( 'Delete Currency', $this->_slug ) . '</button>';
+			echo '</div>';
+			$i ++;
+		}
+
+		return $i;
+	}
+
+	/**
+	 * Create a dropdown with the flags
+	 *
+	 * @param $field_name
+	 * @param $value
+	 *
+	 * @return string
+	 */
+	private function get_flag_list( $field_name, $value = '', $raw = false ) {
+
+		$flag_path   = plugin_dir_path( __FILE__ ) . $this->_flags_dir;
+		$flag_url    = plugin_dir_url( __FILE__ ) . $this->_flags_dir . '/';
+		$flags_array = [];
+		$class       = '';
+
+		/*
+		 * Open the dir
+		 */
+		if ( ! is_dir( $flag_path ) || ! $dh = opendir( $flag_path ) ) {
+			return $flag_path;
+		}
+
+		/*
+		 * Loop trough the flags folder
+		 */
+		while ( ( $file = readdir( $dh ) ) !== false ) {
+
+			if ( '.png' != substr( $file, - 4, 4 ) ) {
+				continue;
+			}
+
+			$name                 = substr( $file, 0, - 4 );
+			$flags_array[ $file ] = $name;
+		}
+
+		closedir( $dh );
+		//asort( $flags_array );
+
+		/*
+		 * Create the flag dropdown
+		 */
+		if ( ! $raw ) {
+			$class = 'jcc_currency_image_menu';
+		}
+		$output = '<select class="jcc_currency_admin_flag ' . $class . '" name="' . $field_name . '" value="' . $value . '" />';
+		foreach ( $flags_array as $flag => $name ) {
+			$output .= '<option value="' . $flag . '" data-image="' . $flag_url . $flag . '"';
+			if ( $flag == $value ) {
+				$output .= ' selected="selected"';
+			}
+			$output .= '>' . $name . ' </option > ';
+		}
+		$output .= '</select > ';
+
+		return $output;
 	}
 }

@@ -55,13 +55,13 @@ class JsCurrencyConverter {
 	public function action__enqueue_scripts() {
 
 		wp_register_script( 'accounting_js',
-		                    plugin_dir_url( __FILE__ ) . 'assets/js/accounting_js/accounting.min.js',
+		                    plugin_dir_url( __FILE__ ) . 'assets/js/accounting.min.js',
 		                    [ 'jquery' ],
 		                    '0.4.2',
 		                    true );
 
 		wp_register_script( 'money_js',
-		                    plugin_dir_url( __FILE__ ) . 'assets/js/money_js/money.min.js',
+		                    plugin_dir_url( __FILE__ ) . 'assets/js/money.min.js',
 		                    [ 'jquery' ],
 		                    '0.2',
 		                    true );
