@@ -92,7 +92,7 @@ class JsCurrencyConverter {
 	 * @return string
 	 */
 	public function filter__add_currency_converter_dropdown() {
-		$currencies_list = preg_split( "/[\r\n]/", get_option( 'jcc_currency' ), - 1, PREG_SPLIT_NO_EMPTY );
+		$currencies_list = $this->get_currency_names( get_option( 'jcc_currency' ) );
 
 		$html = '<div class="js_currency_converter">' .
 		        '<select class="js_currency_converter_select" name="js_currency_converter">';
@@ -128,5 +128,30 @@ class JsCurrencyConverter {
 		}
 
 		return $exchange_rates;
+	}
+
+	/**
+	 * Get a list with the currency names
+	 *
+	 * @param $currencies
+	 *
+	 * @return array|string
+	 */
+	private function get_currency_names( $currencies ) {
+		if ( ! is_array( $currencies ) || empty( $currencies ) ) {
+			return '';
+		}
+		$currencies_names = [];
+		/*
+		 * Walk trough all the stored currencies
+		 */
+		foreach ( $currencies as $currency ) {
+			if ( ! isset( $currency['title'] ) || empty( $currency['title'] ) ) {
+				continue;
+			}
+			$currencies_names[] = $currency['title'];
+		}
+
+		return $currencies_names;
 	}
 }
