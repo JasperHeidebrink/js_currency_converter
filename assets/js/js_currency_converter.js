@@ -94,4 +94,37 @@ jQuery( document ).ready( function ( $ ) {
 		$( '.js_currency_converter_select' ).val( current_currency );
 		update_currency();
 	}
+
+	/**
+	 * Adding a flag to the option
+	 *
+	 * @param state
+	 * @returns {*|jQuery|HTMLElement}
+	 */
+	formatState = function ( state ) {
+		if ( ! state.id ) {
+			return state.text;
+		}
+
+		return $( '<span><img src="' + $( state.element ).attr( 'data-image' ) + '" class="js_currency_converter_img-flag" /> ' + state.text + '</span>' );
+	};
+	/**
+	 * Show a flag in the selected item
+	 *
+	 * @param event
+	 */
+	formatSelect = function ( event ) {
+		var current_item = $( 'option[name="' + event.currentTarget.value + '"]' );
+		$( '.select2-selection__rendered' ).html( '<span><img src="' + current_item.attr( 'data-image' ) + '" class="js_currency_converter_img-flag" /> ' + event.currentTarget.value + '</span>' );
+	};
+
+
+	$( '.js_currency_converter_select' )
+		.select2( {
+			templateResult          : formatState,
+			minimumResultsForSearch : Infinity
+		} )
+		.on( 'select2:select', formatSelect )
+		.trigger( 'select2:select' );
+
 } );

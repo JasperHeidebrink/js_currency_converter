@@ -14,6 +14,10 @@ if ( preg_match( '#' . basename( __FILE__ ) . '#', $_SERVER['PHP_SELF'] ) ) {
 
 
 class JsCurrencyConverter {
+	/**
+	 * @var string
+	 */
+	protected $_version = '1.1';
 
 	/**
 	 * @var string
@@ -24,6 +28,11 @@ class JsCurrencyConverter {
 	 * @var string
 	 */
 	protected $_default_currency = 'USD';
+
+	/**
+	 * @var string
+	 */
+	protected $_flags_dir = 'assets/flags/24';
 
 	/**
 	 * Initial actions
@@ -54,6 +63,16 @@ class JsCurrencyConverter {
 	 */
 	public function action__enqueue_scripts() {
 
+
+		/*
+		 * Load JavaScript
+		 */
+		wp_register_script( 'JsCurrencyConverterSelect2',
+		                    'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js',
+		                    [ 'jquery' ],
+		                    '4.0.3',
+		                    true );
+
 		wp_register_script( 'accounting_js',
 		                    plugin_dir_url( __FILE__ ) . 'assets/js/accounting.min.js',
 		                    [ 'jquery' ],
@@ -68,10 +87,12 @@ class JsCurrencyConverter {
 
 		wp_register_script( 'JsCurrencyConverter',
 		                    plugin_dir_url( __FILE__ ) . 'assets/js/js_currency_converter.js',
-		                    [ 'jquery', 'money_js', 'accounting_js' ],
-		                    '1.0',
+		                    [ 'jquery', 'money_js', 'accounting_js', 'JsCurrencyConverterSelect2' ],
+		                    $this->_version,
 		                    true );
-
+		/*
+		 * Load Stylesheets
+		 */
 		$i18n = array(
 			'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
 			'ajaxNonce'      => wp_create_nonce( $this->_slug ),
@@ -82,8 +103,19 @@ class JsCurrencyConverter {
 		wp_localize_script( 'JsCurrencyConverter', $this->_slug, $i18n );
 		wp_enqueue_script( 'JsCurrencyConverter' );
 
-		wp_register_style( 'JsCurrencyConverter-styles', plugin_dir_url( __FILE__ ) . 'assets/css/js_currency_converter.css' );
+		wp_register_style( 'JsCurrencyConverterSelect2Css',
+		                   'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css',
+		                   null,
+		                   $this->_version,
+		                   'all' );
+
+		wp_register_style( 'JsCurrencyConverter-styles',
+		                   plugin_dir_url( __FILE__ ) . 'assets/css/js_currency_converter.css',
+		                   [ 'JsCurrencyConverterSelect2Css' ],
+		                   $this->_version,
+		                   'all' );
 		wp_enqueue_style( 'JsCurrencyConverter-styles' );
+
 	}
 
 	/**
@@ -93,15 +125,19 @@ class JsCurrencyConverter {
 	 */
 	public function filter__add_currency_converter_dropdown() {
 		$currencies_list = $this->get_currency_names( get_option( 'jcc_currency' ) );
+		$flag_url        = plugin_dir_url( __FILE__ ) . $this->_flags_dir . '/';
 
+		/*
+		 * Generate the dropdown list
+		 */
 		$html = '<div class="js_currency_converter">' .
 		        '<select class="js_currency_converter_select" name="js_currency_converter">';
-		foreach ( $currencies_list as $currency ) {
-			$html .= '  <option name="' . $currency . '"';
-			if ( $this->_default_currency == $currency ) {
+		foreach ( $currencies_list as $currency_name => $currency ) {
+			$html .= '  <option name="' . $currency_name . '" data-image="' . $flag_url . $currency['flag'] . '"';
+			if ( $this->_default_currency == $currency_name ) {
 				$html .= ' selected="selected"';
 			};
-			$html .= '>' . $currency . '</option>';
+			$html .= '>' . $currency_name . '</option>';
 		}
 		$html .= '</select></div>';
 
@@ -149,7 +185,7 @@ class JsCurrencyConverter {
 			if ( ! isset( $currency['title'] ) || empty( $currency['title'] ) ) {
 				continue;
 			}
-			$currencies_names[] = $currency['title'];
+			$currencies_names[ $currency['title'] ] = $currency;
 		}
 
 		return $currencies_names;

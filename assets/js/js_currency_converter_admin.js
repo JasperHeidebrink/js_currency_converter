@@ -52,11 +52,23 @@ jQuery( document ).ready( function ( $ ) {
 			return state.text;
 		}
 
-		return $( '<span><img src="' + $( state.element ).attr( 'data-image' ) + '" class="img-flag" /> ' + state.text + '</span>' );
+		return $( '<span><img src="' + $( state.element ).attr( 'data-image' ) + '" class="js_currency_converter_img-flag" /> ' + state.text + '</span>' );
+	};
+	/**
+	 * Show a flag in the selected item
+	 *
+	 * @param event
+	 */
+	formatSelect = function ( event ) {
+		var current_item = $( 'option[value="' + event.currentTarget.value + '"]' );
+		$( 'span[title="' + current_item.html() + '"]' ).html( '<span><img src="' + current_item.attr( 'data-image' ) + '" class="js_currency_converter_img-flag" /> ' + event.currentTarget.value + '</span>' );
 	};
 
 
-	$( '.jcc_currency_image_menu' ).select2( {
-		templateResult : formatState
-	} );
+	$( '.jcc_currency_image_menu' )
+		.select2( {
+			templateResult : formatState
+		} )
+		.on( 'select2:select', formatSelect )
+		.trigger( 'select2:select' );
 } );

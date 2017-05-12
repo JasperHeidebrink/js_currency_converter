@@ -186,8 +186,8 @@ class JsCurrencyConverterAdmin {
 		echo '	<tr valign="top">';
 		echo '		<th scope="row">' . __( 'Exchange rates', $this->_slug ) . '</th>';
 		echo '		<td>';
-		echo '		<textarea name="jcc_exchange_rates" style="float:left;width:25%;min-height:250px;">' . esc_html( get_option( 'jcc_exchange_rates' ) ) . '</textarea>';
-		echo '      <div class="currency_holder" style="float:left;width:25%;min-height:250px;border:solid 1px;margin:0 15px;">Example:<br>' . $this->retrieve_exchange_rates() . '</div></td>';
+		echo '		<div class="jcc_currency_admin_exchange_holder">'. __( 'My Exchange rates', $this->_slug ) .'<br><textarea name="jcc_exchange_rates" class="jcc_exchange_rates">' . esc_html( get_option( 'jcc_exchange_rates' ) ) . '</textarea></div>';
+		echo '      <div class="jcc_currency_admin_exchange_holder">'. __( 'Example Exchange rates', $this->_slug ) .'<br><div class="currency_holder">' . $this->retrieve_exchange_rates() . '</div></div></td>';
 		echo '	</tr>';
 
 		echo '	<tr valign="top">';
@@ -252,6 +252,11 @@ class JsCurrencyConverterAdmin {
 		$base_name  = 'jcc_currency';
 		$currencies = get_option( 'jcc_currency' );
 
+		echo '<div class="jcc_currency_admin_currency_rows_titles">';
+		echo '<span>Flag</span>';
+		echo '<span>Currency</span>';
+		echo '<span>&nbsp;</span>';
+		echo '</div>';
 		echo '<div class="currency_rows">';
 		$i = $this->get_currency_list( $base_name, $currencies );
 		echo '</div>';
