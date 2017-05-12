@@ -2,9 +2,6 @@ var fx, current_currency;
 
 jQuery( document ).ready( function ( $ ) {
 
-	fx.base  = js_currency_converter.from;
-	fx.rates = js_currency_converter.exchange_rates;
-
 	/*
 	 * Default storing the of a like
 	 */
@@ -25,6 +22,14 @@ jQuery( document ).ready( function ( $ ) {
 	update_currency = function () {
 
 		var currency = $( '.js_currency_converter_select' ).val();
+		if ( typeof null === typeof currency ){
+			return;
+		}
+
+		if ( '' === fx.base ) {
+			fx.base  = js_currency_converter.from;
+			fx.rates = js_currency_converter.exchange_rates;
+		}
 
 		$( '.' + js_currency_converter.target ).each( function () {
 
@@ -32,6 +37,7 @@ jQuery( document ).ready( function ( $ ) {
 			 * Make sure the original value is stored
 			 */
 			var org_value = $( this ).attr( 'data-org_value' );
+
 			if ( typeof org_value === typeof undefined || org_value === false ) {
 				$( this ).attr( 'data-org_value', accounting.unformat( $( this ).text() ) );
 			}
@@ -114,8 +120,15 @@ jQuery( document ).ready( function ( $ ) {
 	 * @param event
 	 */
 	formatSelect = function ( event ) {
-		var current_item = $( 'option[name="' + event.currentTarget.value + '"]' );
-		$( '.select2-selection__rendered' ).html( '<span><img src="' + current_item.attr( 'data-image' ) + '" class="js_currency_converter_img-flag" /> ' + event.currentTarget.value + '</span>' );
+		var current_value = event.currentTarget.value,
+		    current_item  = $( 'option[name="' + event.currentTarget.value + '"]' );
+
+		if ( undefined === current_item.html() ) {
+			current_value = js_currency_converter.from
+			current_item  = $( 'option[name="' + current_value + '"]' );
+		}
+
+		$( '.select2-selection__rendered' ).html( '<span><img src="' + current_item.attr( 'data-image' ) + '" class="js_currency_converter_img-flag" /> ' + current_value + '</span>' );
 	};
 
 

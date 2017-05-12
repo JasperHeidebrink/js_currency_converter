@@ -40,7 +40,7 @@ jQuery( document ).ready( function ( $ ) {
 			i ++;
 		} );
 	};
-
+	
 	/**
 	 * Adding a flag to the option
 	 *
