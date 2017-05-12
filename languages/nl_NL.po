@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: JS Currency Converter\n"
-"POT-Creation-Date: 2017-05-01 15:22+0200\n"
-"PO-Revision-Date: 2017-05-01 15:22+0200\n"
+"POT-Creation-Date: 2017-05-12 16:01+0200\n"
+"PO-Revision-Date: 2017-05-12 16:02+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: nl_NL\n"
@@ -24,57 +24,74 @@ msgstr ""
 "X-Poedit-SearchPathExcluded-1: assets/js/accounting_js\n"
 "X-Poedit-SearchPathExcluded-2: assets/js/money_js\n"
 
-#: js_currency_converter-admin-functions.php:112
+#: js_currency_converter-admin-functions.php:151
 msgid "JS Currency Converter settings"
 msgstr "Instellingen JS Currency Converter"
 
-#: js_currency_converter-admin-functions.php:122
+#: js_currency_converter-admin-functions.php:161
 msgid "The original currency"
 msgstr "De oorspronkelijke valuta"
 
-#: js_currency_converter-admin-functions.php:132
+#: js_currency_converter-admin-functions.php:171
 #, php-format
 msgid ""
 "Special subscription needed at <a href=\"%s\" target=\"currency_list\">%s</a>"
 msgstr ""
 "Speciaal abonnement nodig bij <a href=\"%s\" target=\"currency_list\">%s</a>"
 
-#: js_currency_converter-admin-functions.php:137
-msgid ""
-"API-KEY for <a href=\"http://apilayer.net\" target=\"api_layer\">http://"
-"apilayer.net</a>"
-msgstr ""
-"API-KEY voor <a href=\"http://apilayer.net\" target=\"api_layer\">http://"
-"apilayer.net</a>"
+#: js_currency_converter-admin-functions.php:176
+msgid "Complete API url, inclusive the API-KEY"
+msgstr "Volledige API-url, inclusief de API-sleutel"
 
-#: js_currency_converter-admin-functions.php:142
+#: js_currency_converter-admin-functions.php:178
+msgid ""
+"Example free exchange rate API is: <a href=\"http://apilayer.net\" target="
+"\"api_layer\">http://apilayer.net</a>"
+msgstr ""
+"Voorbeeld API-KEY kan verkregen worden bij: <a href=\"http://apilayer.net\" "
+"target=\"api_layer\">http://apilayer.net</a>"
+
+#: js_currency_converter-admin-functions.php:182
 msgid "CLASS of target element"
 msgstr "CSS class van doel element"
 
-#: js_currency_converter-admin-functions.php:147
-msgid "Currencies"
-msgstr "Valuta"
-
-#: js_currency_converter-admin-functions.php:151
-msgid "Every currency should be on a new line"
-msgstr "Elke valuta moet op een nieuwe regel staan"
-
-#: js_currency_converter-admin-functions.php:152
-#, php-format
-msgid ""
-"Currency list can be found here <a href=\"%s\" target=\"currency_list\">%s</"
-"a>"
-msgstr ""
-"Valuta lijst kan hier gevonden worden <a href=\"%s\" target=\"currency_list"
-"\">%s</a>"
-
-#: js_currency_converter-admin-functions.php:157
+#: js_currency_converter-admin-functions.php:187
 msgid "Exchange rates"
 msgstr "Wisselkoersen"
 
-#: js_currency_converter-admin-functions.php:202
-msgid "API(key) is not valid"
-msgstr "API (sleutel) is niet geldig"
+#: js_currency_converter-admin-functions.php:189
+msgid "My Exchange rates"
+msgstr "Mijn wisselkoersen"
+
+#: js_currency_converter-admin-functions.php:190
+msgid "Example Exchange rates"
+msgstr "Voorbeeld wisselkoersen"
+
+#: js_currency_converter-admin-functions.php:194
+msgid "Currencies"
+msgstr "Valuta"
+
+#: js_currency_converter-admin-functions.php:198
+msgid "Every currency should be on a new line"
+msgstr "Elke valuta moet op een nieuwe regel staan"
+
+#: js_currency_converter-admin-functions.php:199
+msgid "A available currency list can be retrieved from your API provider"
+msgstr ""
+"Een lijst van de beschikbare valuta kan worden opgehaald van uw API-provider"
+
+#: js_currency_converter-admin-functions.php:233
+#, php-format
+msgid "API(key) is not valid : %s"
+msgstr "API(Key) is niet geldig: %s"
+
+#: js_currency_converter-admin-functions.php:267
+msgid "New Currency"
+msgstr "Nieuwe valuta"
+
+#: js_currency_converter-admin-functions.php:319
+msgid "Delete Currency"
+msgstr "Valuta verwijderen?"
 
 #. Plugin Name of the plugin/theme
 msgid "JS Currency Converter"
@@ -91,3 +108,10 @@ msgstr "Dragonet"
 #. Author URI of the plugin/theme
 msgid "http://www.dragonet.nl/"
 msgstr "http://dragonet.nl/"
+
+#~ msgid ""
+#~ "Currency list can be found here <a href=\"%s\" target=\"currency_list\">"
+#~ "%s</a>"
+#~ msgstr ""
+#~ "Valuta lijst kan hier gevonden worden <a href=\"%s\" target="
+#~ "\"currency_list\">%s</a>"
