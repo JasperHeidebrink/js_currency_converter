@@ -28,7 +28,7 @@ class JsCurrencyConverterAdmin {
 	/**
 	 * @var string
 	 */
-	protected $_flags_dir = 'assets/flags/24';
+	protected $_flags_dir = 'assets/flags';
 
 	/**
 	 * @var array

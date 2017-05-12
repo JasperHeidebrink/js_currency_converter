@@ -32,7 +32,7 @@ class JsCurrencyConverter {
 	/**
 	 * @var string
 	 */
-	protected $_flags_dir = 'assets/flags/24';
+	protected $_flags_dir = 'assets/flags';
 
 	/**
 	 * Initial actions
@@ -68,7 +68,7 @@ class JsCurrencyConverter {
 		 * Load JavaScript
 		 */
 		wp_register_script( 'JsCurrencyConverterSelect2',
-		                    'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js',
+		                    plugin_dir_url( __FILE__ ) . 'assets/js/select2.min.js',
 		                    [ 'jquery' ],
 		                    '4.0.3',
 		                    true );
@@ -104,7 +104,7 @@ class JsCurrencyConverter {
 		wp_enqueue_script( 'JsCurrencyConverter' );
 
 		wp_register_style( 'JsCurrencyConverterSelect2Css',
-		                   'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css',
+		                   plugin_dir_url( __FILE__ ) . 'assets/css/select2.min.css',
 		                   null,
 		                   $this->_version,
 		                   'all' );
